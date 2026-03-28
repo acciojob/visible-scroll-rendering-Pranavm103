@@ -3,62 +3,50 @@ import { useState, useRef } from 'react';
 
 
 export default function InfiniteScroll() {
-    const totalItems = 100;
-  const itemHeight = 100;
-  const containerHeight = 500;
+ const totalItems = 1000;
+  const itemHeight = 50;
+  const visibleCount = 10;
 
   const scrollRef = useRef(null);
 
-  const [visibleRange, setVisibleRange] = useState({
-    start: 0,
-    end: 5,
-  });
+  const [startIndex, setStartIndex] = useState(0);
 
-  const items = Array.from({ length: totalItems }, (_, index) => ({
-    title: `Item ${index + 1}`,
-    desc: "Lorem ipsum dolor sit amet.",
+  const items = Array.from({ length: totalItems }, (_, i) => ({
+    title: `Item ${i}`,
+    desc: "Lorem ipsum dolor sit amet."
   }));
 
   const handleScroll = () => {
     const scrollTop = scrollRef.current.scrollTop;
-
-    const start = Math.floor(scrollTop / itemHeight);
-    const end = start + Math.ceil(containerHeight / itemHeight);
-
-    setVisibleRange({ start, end });
+    const newStart = Math.floor(scrollTop / itemHeight);
+    setStartIndex(newStart);
   };
 
-  const visibleItems = items.slice(visibleRange.start, visibleRange.end);
+  const visibleItems = items.slice(startIndex, startIndex + visibleCount);
+
   return (
     <div
       ref={scrollRef}
       onScroll={handleScroll}
-      style={{
-        height: "500px",
-        overflowY: "auto",
-        border: "1px solid #ccc",
-        padding: "10px",
-      }}
+      style={{ height: "500px", overflow: "auto" }}
     >
-      {/* Top Spacer */}
-      <div style={{ height: visibleRange.start * itemHeight }} />
+      <div style={{ height: `${startIndex * itemHeight}px` }} />
 
-      {/* Visible Items */}
       {visibleItems.map((item, index) => (
         <div
-          key={visibleRange.start + index}
-          style={{
-            height: `${itemHeight}px`,
-            marginBottom: "10px",
-          }}
+          key={startIndex + index}
+          style={{ height: `${itemHeight}px` }}
         >
           <h2>{item.title}</h2>
           <p>{item.desc}</p>
         </div>
       ))}
 
-      {/* Bottom Spacer */}
-      <div style={{ height: (totalItems - visibleRange.end) * itemHeight }} />
+      <div
+        style={{
+          height: `${(totalItems - (startIndex + visibleCount)) * itemHeight}px`
+        }}
+      />
     </div>
   )
 }
